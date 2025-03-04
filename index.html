@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R6 Randomizer</title>
+    <style>
+        /* Custom Styles */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #120027; /* Light background for contrast */
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+        }
+        .result-box {
+            padding: 20px;
+            border: 1px solid #984caf; /* Green border */
+            min-height: 100px;
+            margin-bottom: 15px;
+            background: linear-gradient(145deg, #f3f3f3, #d9d9d9); /* Soft gradient */
+            color: #333; /* Text color */
+            font-size: 16px;
+            font-weight: bold; /* Bold text */
+            border-radius: 8px; /* Rounded corners */
+            transition: all 0.3s ease-in-out; /* Smooth transition for changes */
+            display: flex;
+            align-items: center;
+            justify-content: start;
+        }
+        .result-box:hover {
+            background: linear-gradient(145deg, #d9d9d9, #f3f3f3); /* Inverted gradient on hover */
+            transform: scale(1.02); /* Slightly enlarge the box on hover */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Darker shadow on hover */
+        }
+        .result-box img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        .buttons button {
+            margin: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #984caf;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .buttons button:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+        .checkboxes {
+            text-align: left;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        label {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header" style="font-size: 24px; margin-bottom: 20px;">Rainbow Six Siege Randomizer</div>
+
+        <div class="result-box" id="resultBox">
+            <img src="" alt="Operator Image" id="operatorImage">
+            <div id="operatorDetails">Randomized output will appear here</div>
+        </div>
+
+        <div class="buttons">
+            <button id="defenderBtn">Defender</button>
+            <button id="attackerBtn">Attacker</button>
+        </div>
+
+        <div class="checkboxes">
+            <label><input type="checkbox" id="weapons"> Weapons</label><br>
+            <label><input type="checkbox" id="gadget"> Gadget</label><br>
+        </div>
+    </div>
+
+    <script>
+        const operators = {
+            attackers: [
+                {
+                    name: "Sledge",
+                    image: "images/sledge.png",
+                    weapons: ["L85A2", "M590A1"],
+                    secondary: ["P226 Mk 25"],
+                    gadgets: ["Frag Grenade", "Stun Grenade", "Impact Emp"]
+                },
+                {
+                    name: "Thatcher",
+                    image: "images/thatcher.png",
+                    weapons: ["AR33", "L85A2", "M590A1"],
+                    secondary: ["P226 Mk 25"],
+                    gadgets: ["Breach Charge", "Claymore"]
+                },
+                {
+                    name: "Ash",
+                    image: "images/ash.png",
+                    weapons: ["G36C", "R4C"],
+                    secondary: ["5.7 USG", "M45 MEUSOC"],
+                    gadgets: ["Breach Charge", "Claymore"]
+                },
+                {
+                    name: "Thermite",
+                    image: "images/thermite.png",
+                    weapons: ["M1014", "556XI"],
+                    secondary: ["5.7 USG", "M45 MEUSOC"],
+                    gadgets: ["Smoke Grenade", "Stun Grenade"]
+                },
+                {
+                    name: "Montagne",
+                    image: "images/montagne.png",
+                    weapons: ["Shield"],
+                    secondary: ["P9", "LFP586"],
+                    gadgets: ["Hard Breach Charge", "Smoke Grenade", "Impact Emp"]
+                },
+                {
+                    name: "Twitch",
+                    image: "images/twitch.png",
+                    weapons: ["F2", "417", "SG-CQB"],
+                    secondary: ["P9", "LFP586"],
+                    gadgets: ["Smoke Grenade", "Claymore"]
+                },
+                {
+                    name: "Blitz",
+                    image: "images/blitz.png",
+                    weapons: ["Shield"],
+                    secondary: ["P12"],
+                    gadgets: ["Breach Charge", "Smoke Grenade"]
+                },
+                {
+                    name: "IQ",
+                    image: "images/iq.png",
+                    weapons: ["AUG A2", "552 COMMANDO", "G8A1"],
+                    secondary: ["P12"],
+                    gadgets: ["Breach Charge", "Frag Grenade", "Claymore"]
+                },
+                {
+                    name: "Fuze",
+                    image: "images/fuze.png",
+                    weapons: ["AK-12", "6P41", "Shield"],
+                    secondary: ["PMM", "GSH-18"],
+                    gadgets: ["Breach Charge", "Hard Breach Charge", "Smoke Grenade"]
+                },
+                {
+                    name: "Glaz",
+                    image: "images/glaz.png",
+                    weapons: ["OTS-03"],
+                    secondary: ["PMM", "GONNE-6", "BEARING 9"],
+                    gadgets: ["Claymore", "Frag Grenade", "Smoke Grenade"]
+                },
+                {
+                    name: "Buck",
+                    image: "images/buck.png",
+                    weapons: ["C8-SFW", "CAMRS"],
+                    secondary: ["MK1 9MM"],
+                    gadgets: ["Claymore", "Stun Grenade"]
+                },
+                {
+                    name: "Blackbeard",
+                    image: "images/blackbeard.png",
+                    weapons: ["Shield"],
+                    secondary: ["MK17 CQB", "SR-25"],
+                    gadgets: ["Claymore", "Frag Grenade"]
+                },
+                {
+                    name: "Capitao",
+                    image: "images/capitao.png",
+                    weapons: ["M249", "PARA-308"],
+                    secondary: ["GONNE-6", "PRB92"],
+                    gadgets: ["Claymore", "Impact Emp Grenade", "Hard Breach Charge"]
+                },
+                {
+                    name: "Hibana",
+                    image: "images/hibana.png",
+                    weapons: ["TYPE-89", "SUPERNOVA"],
+                    secondary: ["P229", "BEARING 9"],
+                    gadgets: ["Stun Grenade", "Breach Charge"]
+                },
+                {
+                    name: "Jackal",
+                    image: "images/jackal.png",
+                    weapons: ["C7E", "PDW9", "ITA12L"],
+                    secondary: ["USP40", "ITA12S"],
+                    gadgets: ["Smoke Grenade", "Claymore"]
+                },
+                {
+                    name: "Ying",
+                    image: "images/ying.png",
+                    weapons: ["T-95 LSW", "SIX12"],
+                    secondary: ["Q-929"],
+                    gadgets: ["Smoke Grenade", "Hard Breach Charge"]
+                },
+                {
+                    name: "Zofia",
+                    image: "images/zofia.png",
+                    weapons: ["LMG-E", "M762"],
+                    secondary: ["RG-15"],
+                    gadgets: ["Claymore", "Hard Breach Charge"]
+                },
+                {
+                    name: "Dokkaebi",
+                    image: "images/dokkaebi.png",
+                    weapons: ["MK 14 EBR", "BOSG.12.2"],
+                    secondary: ["GONNE-6", "SMG-12", "C75 AUTO"],
+                    gadgets: ["Stun Grenade", "Impact Emp Grenade", "Smoke Grenade"]
+                },
+                {
+                    name: "Finka",
+                    image: "images/finka.png",
+                    weapons: ["6P41", "SASG-12", "SPEAR .308"],
+                    secondary: ["GSH-18", "PMM"],
+                    gadgets: ["Frag Grenade", "Stun Grenade", "Smoke Grenade"]
+                },
+                {
+                    name: "Lion",
+                    image: "images/lion.png",
+                    weapons: ["417", "SG-CQB", "V308"],
+                    secondary: ["LFP586", "P9"],
+                    gadgets: ["Frag Grenade", "Stun Grenade", "Claymore",]
+                },
+                {
+                    name: "Maverick",
+                    image: "images/maverick.png",
+                    weapons: ["AR-15.50", "M4"],
+                    secondary: ["1911 TACOPS"],
+                    gadgets: ["Claymore", "Stun Grenade", "Smoke Grenade"]
+                },
+                {
+                    name: "Nomad",
+                    image: "images/nomad.png",
+                    weapons: ["AK-74M", "ARX200"],
+                    secondary: ["PRB92", ".44 MAG SEMI-AUTO"],
+                    gadgets: ["Stun Grenade", "Breach Charge"]
+                },
+                {
+                    name: "Gridlock",
+                    image: "images/gridlock.png",
+                    weapons: ["F90", "M249 SAW"],
+                    secondary: ["SUPER SHORTY", "SDP 9MM"],
+                    gadgets: ["Smoke Grenade", "Frag Grenade", "Impact Emp Grenade"]
+                },
+                {
+                    name: "Nøkk",
+                    image: "images/nokk.png",
+                    weapons: ["FMG-9", "SIX12 SD"],
+                    secondary: ["5.7 USG", "D-50"],
+                    gadgets: ["Hard Breach Charge", "Frag Grenade", "Impact Emp Grenade"]
+                },
+                {
+                    name: "Amaru",
+                    image: "images/amaru.png",
+                    weapons: ["G8A1", "SUPERNOVA"],
+                    secondary: ["GONNE-6", "SMG-11", "ITA12S"],
+                    gadgets: ["Hard Breach Charge", "Stun Grenade"]
+                },
+                {
+                    name: "Kali",
+                    image: "images/kali.png",
+                    weapons: ["CSRX 300"],
+                    secondary: ["SPSMG9", "C75 AUTO", "P226 MK 25"],
+                    gadgets: ["Breach Charge", "Smoke Grenade", "Claymore"]
+                },
+                {
+                    name: "Iana",
+                    image: "images/iana.png",
+                    weapons: ["ARX200", "G36C"],
+                    secondary: ["GONNE-6", "MK1 9MM"],
+                    gadgets: ["Impact Emp Grenade", "Smoke Grenade"]
+                },
+                {
+                    name: "Ace",
+                    image: "images/ace.png",
+                    weapons: ["AK-12", "M1014"],
+                    secondary: ["P9"],
+                    gadgets: ["Breach Charge", "Claymore"]
+                },
+                {
+                    name: "Zero",
+                    image: "images/zero.png",
+                    weapons: ["MP7", "SC3000K"],
+                    secondary: ["5.7 USG", "GONNE-6"],
+                    gadgets: ["Hard Breach Charge", "Claymore"]
+                },
+                {
+                    name: "Flores",
+                    image: "images/flores.png",
+                    weapons: ["AR33", "SR-25"],
+                    secondary: ["GSH-18"],
+                    gadgets: ["Stun Grenade", "Claymore"]
+                },
+                {
+                    name: "Osa",
+                    image: "images/osa.png",
+                    weapons: ["556XI", "PDW9"],
+                    secondary: ["PMM"],
+                    gadgets: ["Impact Emp Grenade", "Frag Grenade", "Claymore"]
+                },
+                {
+                    name: "Sens",
+                    image: "images/sens.png",
+                    weapons: ["417", "POF9"],
+                    secondary: ["SDP 9MM"],
+                    gadgets: ["Hard Breach Charge", "Frag Grenade", "Claymore"]
+                },
+                {
+                    name: "Grim",
+                    image: "images/grim.png",
+                    weapons: ["552 COMMANDO", "SG-CQB"],
+                    secondary: ["BAILIFF 410", "P229"],
+                    gadgets: ["Hard Breach Charge", "Impact Emp Grenade", "Claymore"]
+                },
+                {
+                    name: "Brava",
+                    image: "images/brava.png",
+                    weapons: ["PARA-308", "CAMRS"],
+                    secondary: ["USP40", "SUPER SHORTY"],
+                    gadgets: ["Smoke Grenade", "Claymore"]
+                },
+                {
+                    name: "Ram",
+                    image: "images/ram.png",
+                    weapons: ["LMG-E", "R4C"],
+                    secondary: ["MK1 9MM"],
+                    gadgets: ["Smoke Grenade", "Stun Grenade"]
+                },
+                {
+                    name: "Deimos",
+                    image: "images/deimos.png",
+                    weapons: ["AK-74M", "M590A1"],
+                    secondary: [".44 VENDETTA"],
+                    gadgets: ["Frag Grenade", "Hard Breach Charge"]
+                },
+                {
+                    name: "Striker",
+                    image: "images/striker.png",
+                    weapons: ["M4", "M249"],
+                    secondary: ["5.7 USG", "ITA12S"],
+                    gadgets: ["Frag Grenade", "Hard Breach Charge", "Breach Charge", "Claymore", "Smoke Grenade", "Stun Grenade", "Impact Emp Grenade"]
+                },
+                {
+                    name: "Rauora",
+                    image: "images/rauora.avif",
+                    weapons: ["417", "M249"],
+                    secondary: ["REAPER MK2", "GSH-18"],
+                    gadgets: ["Smokes Grenade", "Breach Charge"]
+                }
+            ],
+            defenders: [
+                {
+                    name: "Smoke",
+                    image: "images/smoke.png",
+                    weapons: ["FMG-9", "M590A1"],
+                    secondary: ["P226 Mk 25"],
+                    gadgets: ["Barbed Wire", "Proximity Alarm"]
+                },
+                {
+                    name: "Mute",
+                    image: "images/mute.png",
+                    weapons: ["MP5K", "M590A1"],
+                    secondary: ["P226 Mk 25", "SMG-11"],
+                    gadgets: ["Bulletproof Camera", "C4"]
+                },
+                {
+                    name: "Castle",
+                    image: "images/castle.png",
+                    weapons: ["UMP45", "M1014"],
+                    secondary: ["5.7 USG", "M45 MEUSOC", "SUPER SHORTY"],
+                    gadgets: ["Bulletproof Camera", "Proximity Alarm"]
+                },
+                {
+                    name: "Pulse",
+                    image: "images/pulse.png",
+                    weapons: ["UMP45", "M1014"],
+                    secondary: ["5.7 USG", "M45 MEUSOC"],
+                    gadgets: ["C4", "Deployable Shield", "Observation Blocker"]
+                },
+                {
+                    name: "Doc",
+                    image: "images/doc.png",
+                    weapons: ["P90", "MP5", "SG-CQB"],
+                    secondary: ["P9", "LFP596", "BAILIFF 410"],
+                    gadgets: ["Bulletproof Camera", "Barbed Wire"]
+                },
+                {
+                    name: "Rook",
+                    image: "images/rook.png",
+                    weapons: ["P90", "MP5", "SG-CQB"],
+                    secondary: ["P9", "LFP596"],
+                    gadgets: ["Impact Grenade", "Proximity Alarm", "Observation Blocker"]
+                },
+                {
+                    name: "Jäger",
+                    image: "images/jager.png",
+                    weapons: ["M870", "416-C CARBINE"],
+                    secondary: ["P12"],
+                    gadgets: ["Bulletproof Camera", "Observation Blocker"]
+                },
+                {
+                    name: "Bandit",
+                    image: "images/bandit.png",
+                    weapons: ["M870", "MP7"],
+                    secondary: ["P12"],
+                    gadgets: ["Barbed Wire", "C4"]
+                },
+                {
+                    name: "Tachanka",
+                    image: "images/tachanka.png",
+                    weapons: ["DP27", "9X19VSN"],
+                    secondary: ["PMM", "GSH-18", "BEARING 9"],
+                    gadgets: ["Barbed Wire", "Proximity Alarm", "Deployable Shield"]
+                },
+                {
+                    name: "Kapkan",
+                    image: "images/kapkan.png",
+                    weapons: ["SASG-12", "9X19VSN"],
+                    secondary: ["PMM", "GSH-18"],
+                    gadgets: ["Barbed Wire", "Bulletproof Camera"]
+                },
+                {
+                    name: "Frost",
+                    image: "images/frost.png",
+                    weapons: ["SUPER 90", "9MM C1"],
+                    secondary: ["MK1 0MM", "ITA12S"],
+                    gadgets: ["Deployable Shield", "Bulletproof Camera"]
+                },
+                {
+                    name: "Valkyrie",
+                    image: "images/valkyrie.png",
+                    weapons: ["MPX", "SPAS-12"],
+                    secondary: ["D-50"],
+                    gadgets: ["Impact Grenade", "C4"]
+                },
+                {
+                    name: "Caveira",
+                    image: "images/caveira.png",
+                    weapons: ["SPAS-15", "M12"],
+                    secondary: ["LUISON"],
+                    gadgets: ["Impact Grenade", "Observation Blocker", "Proximity Alarm"]
+                },
+                {
+                    name: "Echo",
+                    image: "images/echo.png",
+                    weapons: ["MP5SD", "SUPERNOVA"],
+                    secondary: ["BEARING 9", "P229"],
+                    gadgets: ["Deployable Shield", "Impact Grenade"]
+                },
+                {
+                    name: "Mira",
+                    image: "images/mira.png",
+                    weapons: ["VECTOR .45 ACP", "ITA12L"],
+                    secondary: ["USP40", "ITA12S"],
+                    gadgets: ["Proximity Alarm", "C4"]
+                },
+                {
+                    name: "Lesion",
+                    image: "images/lesion.png",
+                    weapons: ["T-5 SMG", "SIX12 SD"],
+                    secondary: ["Q-929", "SUPER SHORTY"],
+                    gadgets: ["Bulletproof Camera", "Observation Blocker"]
+                },
+                {
+                    name: "Ela",
+                    image: "images/ela.png",
+                    weapons: ["Scorpion EVO 3 A1", "FO-12"],
+                    secondary: ["RG15"],
+                    gadgets: ["Barbed Wire", "Deployable Shield", "Impact Grenade"]
+                },
+                {
+                    name: "Vigil",
+                    image: "images/vigil.png",
+                    weapons: ["K1A", "BOSG.12.2"],
+                    secondary: ["C75 Auto", "SMG-12"],
+                    gadgets: ["Bulletproof camera", "Impact Grenade"]
+                },
+                {
+                    name: "Alibi",
+                    image: "images/alibi.png",
+                    weapons: ["Mx4 Storm", "ACS12"],
+                    secondary: ["Keratos .357", "Bailiff 410"],
+                    gadgets: ["Proximity Alarm", "Observation Blocker"]
+                },
+                {
+                    name: "Maestro",
+                    image: "images/maestro.png",
+                    weapons: ["ALDA 5.56", "ACS12"],
+                    secondary: ["Keratos .357", "Bailiff 410"],
+                    gadgets: ["Barbed Wire", "Observation Blocker", "Impact Grenade"]
+                },
+                {
+                    name: "Clash",
+                    image: "images/clash.png",
+                    weapons: ["Shield"],
+                    secondary: ["P-10C", "SPSMG9", "Super Shorty"],
+                    gadgets: ["Barbed Wire", "Deployable Shield", "Impact Grenade"]
+                },
+                {
+                    name: "Kaid",
+                    image: "images/kaid.png",
+                    weapons: ["AUG A3", "TCSG12"],
+                    secondary: [".44 MAG SEMI-AUTO", "LFP586"],
+                    gadgets: ["Barbed Wire", "Observation Blocker", "C4"]
+                },
+                {
+                    name: "Mozzie",
+                    image: "images/mozzie.png",
+                    weapons: ["Commando 9", "P10 RONI"],
+                    secondary: ["SDP 9mm"],
+                    gadgets: ["Barbed Wire", "Impact Grenade", "C4"]
+                },
+                {
+                    name: "Warden",
+                    image: "images/warden.png",
+                    weapons: ["M590A1", "MPX"],
+                    secondary: ["P-10C", "SMG-12"],
+                    gadgets: ["Deployable Shield", "Observation Blocker", "C4"]
+                },
+                {
+                    name: "Goyo",
+                    image: "images/goyo.png",
+                    weapons: ["Vector .45 ACP", "TCSG12"],
+                    secondary: ["P229"],
+                    gadgets: ["Proximity Alarm", "Bulletproof camera", "Impact Grenade"]
+                },
+                {
+                    name: "Wamai",
+                    image: "images/wamai.png",
+                    weapons: ["AUG A2", "MP5K"],
+                    secondary: ["P12", "Keratos .357"],
+                    gadgets: ["Proximity Alarm", "Impact Grenade"]
+                },
+                {
+                    name: "Oryx",
+                    image: "images/oryx.png",
+                    weapons: ["SPAS-12", "T-5 SMG"],
+                    secondary: ["Bailiff 410", "USP40"],
+                    gadgets: ["Barbed Wire", "Proximity Alarm"]
+                },
+                {
+                    name: "Melusi",
+                    image: "images/melusi.png",
+                    weapons: ["MP5", "Super 90"],
+                    secondary: ["ITA12S", "RG15"],
+                    gadgets: ["Bulletproof camera", "Impact Grenade"]
+                },
+                {
+                    name: "Aruni",
+                    image: "images/aruni.png",
+                    weapons: ["P10 RONI", "Mk 14 EBR"],
+                    secondary: ["PRB92"],
+                    gadgets: ["Bulletproof camera", "Barbed Wire"]
+                },
+                {
+                    name: "Thunderbird",
+                    image: "images/thunderbird.png",
+                    weapons: ["SPAS-15", "Spear .308"],
+                    secondary: ["Bearing 9", "Q-929", "ITA12S"],
+                    gadgets: ["Bulletproof camera", "Deployable Shield", "Barbed Wire"]
+                },
+                {
+                    name: "Thorn",
+                    image: "images/thorn.png",
+                    weapons: ["UZK50Gi", "M870"],
+                    secondary: ["1911 TACOPS", "C75 Auto"],
+                    gadgets: ["Deployable Shield", "Barbed Wire"]
+                },
+                {
+                    name: "Azami",
+                    image: "images/azami.png",
+                    weapons: ["9X19SVNI", "ACS12"],
+                    secondary: ["D-50"],
+                    gadgets: ["Impact Grenade", "Barbed Wire"]
+                },
+                {
+                    name: "Solis",
+                    image: "images/solis.png",
+                    weapons: ["ITA12L", "P90"],
+                    secondary: ["SMG-11"],
+                    gadgets: ["Bulletproof camera", "Proximity Alarm"]
+                },
+                {
+                    name: "Fenrir",
+                    image: "images/fenrir.png",
+                    weapons: ["MP7", "SASG-12"],
+                    secondary: ["5.7 USG", "Bailiff 410"],
+                    gadgets: ["Bulletproof camera", "Observation Blocker"]
+                },
+                {
+                    name: "Tubarao",
+                    image: "images/tubarao.png",
+                    weapons: ["MPX", "AR-15.50"],
+                    secondary: ["P226 Mk 25"],
+                    gadgets: ["C4", "Proximity Alarm"]
+                },
+                {
+                    name: "Sentry",
+                    image: "images/sentry.png",
+                    weapons: ["Commando 9", "M870"],
+                    secondary: ["C75 Auto", "Super Shorty"],
+                    gadgets: ["C4", "Proximity Alarm", "Barbed Wire", "Deployable Shield", "Bulletproof camera", "Observation Blocker", "Impact Grenade"]
+                },
+                {
+                    name: "Skopos",
+                    image: "images/skopos.png",
+                    weapons: ["PCX-33"],
+                    secondary: ["P229"],
+                    gadgets: ["Impact Grenade", "Proximity Alarm"]
+                },
+            ]
+        };
+
+
+        function getRandomElement(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function randomizeOperator(type) {
+            const selectedOperators = operators[type];
+            const randomOperator = getRandomElement(selectedOperators);
+            
+            // Update the image
+            const operatorImage = document.getElementById("operatorImage");
+            operatorImage.src = randomOperator.image;
+            operatorImage.alt = randomOperator.name;
+
+            // Update the text details
+            let result = `Operator: ${randomOperator.name}`;
+
+            if (document.getElementById("weapons").checked) {
+                result += `\nPrimary: ${getRandomElement(randomOperator.weapons)}`;
+                result += `\nSecondary: ${getRandomElement(randomOperator.secondary)}`;
+            }
+            if (document.getElementById("gadget").checked) {
+                result += `\nGadget: ${getRandomElement(randomOperator.gadgets)}`;
+            }
+
+            document.getElementById("operatorDetails").innerText = result;
+        }
+
+        document.getElementById("attackerBtn").addEventListener("click", () => randomizeOperator("attackers"));
+        document.getElementById("defenderBtn").addEventListener("click", () => randomizeOperator("defenders"));
+    </script>
+</body>
+</html>
